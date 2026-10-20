@@ -348,9 +348,17 @@ E-mail:
   var count  = document.getElementById('tCount');
   var timer  = null;
 
+  // 本文は「E-mail:」+改行 で終わる。行末アンカーの正規表現だと改行に阻まれて
+  // 差し込みが黙って失敗するので、位置を直接探して入れる。
   function build() {
     var m = mail.value.trim();
-    return m ? SRC.replace(/E-mail:[ \t]*$/, 'E-mail: ' + m) : SRC;
+    if (!m) return SRC;
+    var key = 'E-mail:';
+    var at = SRC.lastIndexOf(key);
+    if (at === -1) return SRC;
+    var head = SRC.slice(0, at + key.length);
+    var tail = SRC.slice(at + key.length);
+    return head + ' ' + m + tail.replace(/^[ \t]+/, '');   // 末尾の改行は残す
   }
   function refresh() {
     count.textContent = build().replace(/\n/g, '').length.toLocaleString('ja-JP') + ' 文字';
